@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dobro došli u Kladanj</title>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <audio id="audio-bosnian" autoplay>
+    <audio id="audio-bosnian">
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
     <a-scene embedded arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
@@ -33,16 +33,14 @@
         <a-light type="ambient" intensity="0.6" color="#FFF"></a-light>
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas docekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne skole, gdje djecji smijeh odzvanja pored sportskog igralista i sale za kulturne dogadjaje. Tu je i mesdzid, tiho svetiste zajednistva. Drugi krak vodi do Tvornice masivnog namjestaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeca i zanatske radnje bruje zivotom, dok vodosnabdijevanje povezuje razgranato naselje. Staric je više od sela – to je dusa Kladnja, okruzena zelenilom Konjuha i povijescu Stupara. Zaustavite se, upoznajte nase ljude, probajte domacu hranu i otkrijte cari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
-        <a-entity id="play-audio-button"
-                  geometry="primitive: plane; height: 0.3; width: 2"
-                  material="shader: standard; color: #FFD700; metalness: 0.5; roughness: 0.2"
-                  position="0 2 -4.9"
-                  text="value: REPRODUCIRAJ ZVUK; color: black; align: center; width: 3;"
+        <a-entity id="new-play-button"
+                  geometry="primitive: circle; radius: 0.3"
+                  material="shader: standard; color: #FFFFFF; opacity: 0.8; metalness: 0.2; roughness: 0.5"
+                  position="0 1.8 -1.5"
+                  text="value: 🕪; color: #333333; align: center; width: 1;"
                   cursor="rayOrigin: mouse"
-                  visible="false"
-                  animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear"
-                  animation__click="property: material.color; to: #FFFFE0; dur: 200; startEvents: click; dir: alternate; loop: 2">
-            <a-entity id="click-particles" visible="false" click-particles></a-entity>
+                  visible="true"
+                  animation="property: position; by: 0 0.05 0; dur: 800; easing: easeInOutSine; loop: true; dir: alternate">
         </a-entity>
         <a-entity id="stars-container" falling-stars></a-entity>
         <a-camera position="0 1.6 0">
@@ -52,6 +50,7 @@
     <script>
         let bosnianAudio = document.getElementById('audio-bosnian');
         let isAudioPlaying = false;
+
         function stopAllAudio() {
             if (bosnianAudio) {
                 bosnianAudio.pause();
@@ -60,44 +59,32 @@
             isAudioPlaying = false;
             console.log('Audio zaustavljen.');
         }
+
         function playAudio(audioElement) {
             if (!audioElement || !audioElement.src) {
-                console.warn('Audio element nije element definisan ili nema izvor.');
+                console.warn('Audio element nije definiran ili nema izvor.');
                 return;
             }
+            console.log('Pokušaj reprodukcije:', audioElement.src);
             stopAllAudio();
-            audioElement.muted = false;
             audioElement.play().then(() => {
                 isAudioPlaying = true;
-                document.getElementById('play-audio-button').setAttribute('visible', 'false');
                 console.log('Audio pokrenut.');
+                document.getElementById('new-play-button').setAttribute('visible', 'false');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
-                document.getElementById('play-audio-button').setAttribute('visible', 'true');
             });
         }
-        bosnianAudio.addEventListener('play', () => {
-            isAudioPlaying = true;
-            console.log('Audio se reprodukuje.');
-        });
-        bosnianAudio.addEventListener('ended', () => {
-            isAudioPlaying = false;
-            console.log('Audio završen.');
-        });
+
         bosnianAudio.addEventListener('error', (e) => {
             console.error('Greška pri učitavanju audija:', e);
-            document.getElementById('play-error').setAttribute('data-error', 'true');
         });
-        window.addEventListener('load', () => {
-            console.log('Stranica učitana.');
+
+        document.getElementById('new-play-button').addEventListener('click', () => {
+            console.log('Klik na novi gumb za reprodukciju.');
             playAudio(bosnianAudio);
         });
-        // Ukloni suvišni listener
-        // window.addEventListener('load', () => { document.getElementById("audio-bosnian").play(); });
-        document.getElementById('play-audio-button').addEventListener('click', () => {
-            console.log('Klik na gumb.');
-            playAudio(bosnianAudio);
-        });
+
         AFRAME.registerComponent('custom-animation', {
             init: function () {
                 let el = this.el;
@@ -125,6 +112,7 @@
                 }
             }
         });
+
         AFRAME.registerComponent('falling-stars', {
             init: function () {
                 let scene = document.querySelector('#stars-container');
@@ -132,17 +120,16 @@
                     let star = document.createElement('a-sphere');
                     star.setAttribute('radius', '0.05');
                     star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
-                    star.setAttribute('position', `${(Math.random() - 0.5)) * 8} ${Math.random() * 3 + 2} -4`);
+                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 3 + 2} -4`);
                     scene.appendChild(star);
                     this.animateStar(star);
                 }
             },
             animateStar: function (star) {
-                function fal() {
+                function fall() {
                     let startY = Math.random() * 3 + 2;
                     let duration = Math.random() * 3000 + 2000;
-                    star.setAttribute('position', {
-                    `${(Math.random() - 0.5) * 8} ${startY} -4`);
+                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${startY} -4`);
                     star.setAttribute('animation', {
                         property: 'position',
                         to: `${(Math.random() - 0.5) * 8} -1 -4`,
@@ -160,44 +147,9 @@
                     setTimeout(() => fall(), duration);
                 }
                 fall();
-                }
-            });
-        AFRAME.registerComponent('click-particles', {
-            init: function () {
-                this.el.addEventListener('click', () => {
-                    this.el.setAttribute('visible', 'true');
-                    let scene = this.el;
-                    scene.innerHTML = '';
-                    for (let i = 0; i < 10; i++) {
-                        let particle = document.createElement('a-sphere');
-                        particle.setAttribute('radius', '0.02');
-                        particle.setAttribute('material', 'color: #FFFFFF; opacity: 0.8');
-                        particle.setAttribute('position', `${(Math.random() - 0.5) * 0.5} ${(Math.random() - 0.5) * 0.5} 0.01`);
-                        scene.appendChild(particle);
-                        this.animateParticle(particle);
-                    }
-                    setTimeout(() => {
-                        scene.innerHTML = '';
-                        this.el.setAttribute('visible', 'false');
-                    }, 1000);
-                });
-            },
-            animateParticle: function (particle) {
-                let duration = 800;
-                particle.setAttribute('animation', {
-                    property: 'position',
-                    to: `${(Math.random() - 1) * 1} ${(Math.random() - 1) * 1} ${0.01}`,
-                    dur: duration,
-                    easing: 'easeOutQuad'
-                });
-                particle.setAttribute('animation__fade', {
-                    property: 'material.opacity',
-                    to: 0,
-                    dur: duration,
-                    easing: 'linear'
-                });
             }
         });
+
         function flashEffect() {
             let light = document.querySelector('#flash-light');
             let intensity = Math.random() * 1.5;
@@ -208,8 +160,8 @@
             }, 100);
         }
         flashEffect();
+
         document.querySelector('#stars-container').setAttribute('falling-stars', '');
-        document.querySelector('#play-audio-button').querySelector('#click-particles').setAttribute('click-particles', '');
     </script>
 </body>
 </html>
