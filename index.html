@@ -18,8 +18,8 @@
     </style>
 </head>
 <body>
-    <audio id="audio-bosnian" autoplay>
-        <source src="https://raw.githubusercontent.com/saracen7mi/staric/main/staric.mp3" type="audio/mpeg">
+    <audio id="audio-bosnian" autoplay muted>
+        <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
     <a-scene embedded arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
         <a-assets>
@@ -65,6 +65,7 @@
                 return;
             }
             stopAllAudio();
+            audioElement.muted = false; // Ukloni mute nakon pokušaja reprodukcije
             audioElement.play().then(() => {
                 isAudioPlaying = true;
                 document.getElementById('play-audio-button').setAttribute('visible', 'false');
@@ -81,9 +82,12 @@
         });
         window.addEventListener('load', () => {
             playAudio(bosnianAudio);
-        });
-        window.addEventListener('load', () => {
-            document.getElementById("audio-bosnian").play();
+            // Dodaj event listener za korisničku interakciju
+            document.body.addEventListener('click', () => {
+                if (!isAudioPlaying) {
+                    playAudio(bosnianAudio);
+                }
+            }, { once: true });
         });
         document.getElementById('play-audio-button').addEventListener('click', () => {
             playAudio(bosnianAudio);
@@ -188,14 +192,12 @@
             let intensity = Math.random() * 1.5;
             light.setAttribute('intensity', intensity);
             setTimeout(() => {
-                light.setAttribute("intensity", '0');
+                light.setAttribute('intensity', '0');
                 setTimeout(flashEffect, Math.random() * 600 + 300);
             }, 100);
         }
         flashEffect();
-        document.querySelector('#stars-container').setTimeout(() => {
-            document.querySelector('falling-stars');
-        });
+        document.querySelector('#stars-container').setAttribute('falling-stars', '');
     </script>
 </body>
 </html>
