@@ -21,18 +21,6 @@
     <audio id="audio-bosnian" autoplay>
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
-    <audio id="audio-english">
-        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaengleski.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="audio-german">
-        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonanjemacki.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="audio-italian">
-        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaitalijanski.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="audio-turkish">
-        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaturski.mp3" type="audio/mpeg">
-    </audio>
 
     <a-scene embedded arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
         <a-assets>
@@ -50,7 +38,8 @@
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas dočekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne škole, gdje dječji smijeh odjekuje pored sportskog igrališta i sale za kulturne događaje. Tu je i džamija, tiho svetište zajedništva. Drugi krak vodi do Tvornice masivnog namještaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeća i zanatske radnje bruje životom, dok vodosnabdijevanje povezuje razgranato naselje. Starić je više od sela – to je duša Kladnja, okružena zelenilom Konjuha i poviješću Stupara. Zaustavite se, upoznajte naše ljude, probajte domaću hranu i otkrijte čari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
 
-        <!-- Language buttons from the first code -->
+        <!-- Zakomentarisana dugmad za jezike -->
+        <!--
         <a-entity id="eng-button" geometry="primitive: plane; height: 0.5; width: 1.5"
                   material="color: red" position="-2.5 2 -4.9"
                   text="value: ENG; color: white; align: center; width: 3;">
@@ -67,6 +56,7 @@
                   material="color: brown" position="2 2 -4.9"
                   text="value: TUR; color: white; align: center; width: 3;">
         </a-entity>
+        -->
 
         <a-entity id="stars-container" falling-stars></a-entity>
 
@@ -76,43 +66,21 @@
     </a-scene>
 
     <script>
-        // Audio elements
+        // Audio elementi
         let bosnianAudio = document.getElementById('audio-bosnian');
-        let englishAudio = document.getElementById('audio-english');
-        let germanAudio = document.getElementById('audio-german');
-        let italianAudio = document.getElementById('audio-italian');
-        let turkishAudio = document.getElementById('audio-turkish');
-        let isAudioPlaying = false;
 
-        // Audio control functions
-        function stopAllAudio() {
-            [bosnianAudio, englishAudio, germanAudio, italianAudio, turkishAudio].forEach(audio => {
-                if (audio) {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }
-            });
-            isAudioPlaying = false;
-        }
-
+        // Funkcija za pokretanje audija
         function playAudio(audioElement) {
             if (!audioElement || !audioElement.src) {
                 console.warn('Audio element nije definiran ili nema izvor.');
                 return;
             }
-            stopAllAudio();
             audioElement.play().then(() => {
-                isAudioPlaying = true;
+                console.log('Bosanski audio pokrenut.');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
             });
         }
-
-        // Language button event listeners
-        document.getElementById('eng-button').addEventListener('mouseenter', () => playAudio(englishAudio));
-        document.getElementById('deu-button').addEventListener('mouseenter', () => playAudio(germanAudio));
-        document.getElementById('ita-button').addEventListener('mouseenter', () => playAudio(italianAudio));
-        document.getElementById('tur-button').addEventListener('mouseenter', () => playAudio(turkishAudio));
 
         // Auto-play Bosnian audio on load
         window.addEventListener('load', () => {
@@ -123,7 +91,7 @@
             }, { once: true });
         });
 
-        // Animation component for the 3D model
+        // Komponenta za animaciju 3D modela
         AFRAME.registerComponent('custom-animation', {
             init: function () {
                 let el = this.el;
@@ -148,7 +116,7 @@
             }
         });
 
-        // Falling stars component
+        // Komponenta za padajuće zvijezde
         AFRAME.registerComponent('falling-stars', {
             init: function () {
                 let scene = document.querySelector('#stars-container');
@@ -186,7 +154,7 @@
             }
         });
 
-        // Flash light effect
+        // Efekt svjetlosnog bljeska
         function flashEffect() {
             let light = document.querySelector('#flash-light');
             let intensity = Math.random() * 1.5;
@@ -198,7 +166,7 @@
         }
         flashEffect();
 
-        // Initialize components
+        // Inicijalizacija komponenti
         document.querySelector('#stars-container').setAttribute('falling-stars', '');
     </script>
 </body>
