@@ -34,14 +34,14 @@
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas docekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne skole, gdje djecji smijeh odzvanja pored sportskog igralista i sale za kulturne dogadjaje. Tu je i mesdzid, tiho svetiste zajednistva. Drugi krak vodi do Tvornice masivnog namjestaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeca i zanatske radnje bruje zivotom, dok vodosnabdijevanje povezuje razgranato naselje. Staric je više od sela – to je dusa Kladnja, okruzena zelenilom Konjuha i povijescu Stupara. Zaustavite se, upoznajte nase ljude, probajte domacu hranu i otkrijte cari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
         <a-entity id="play-audio-button"
-                  geometry="primitive: circle; radius: 0.3"
-                  material="shader: standard; color: #FFFFFF; opacity: 0.8; metalness: 0.2; roughness: 0.5"
-                  position="0 1.8 -1.5"
-                  text="value: 🕪; color: #333333; align: center; width: 1;"
+                  geometry="primitive: plane; height: 0.3; width: 2"
+                  material="shader: standard; color: #FFD700; metalness: 0.5; roughness: 0.2"
+                  position="0 2 -4.9"
+                  text="value: REPRODUCIRAJ ZVUK; color: black; align: center; width: 3;"
                   cursor="rayOrigin: mouse"
-                  visible="true"
-                  animation="property: position; by: 0 0.05 0; dur: 800; easing: easeInOutSine; loop: true; dir: alternate"
-                  animation__click="property: material.color; to: #DDDDDD; dur: 200; startEvents: click; dir: alternate; loop: 2">
+                  visible="false"
+                  animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear"
+                  animation__click="property: material.color; to: #FFFFE0; dur: 200; startEvents: click; dir: alternate; loop: 2">
             <a-entity id="click-particles" visible="false" click-particles></a-entity>
         </a-entity>
         <a-entity id="stars-container" falling-stars></a-entity>
@@ -59,7 +59,7 @@
                 bosnianAudio.currentTime = 0;
             }
             isAudioPlaying = false;
-            console.log('Svi audio elementi zaustavljeni.');
+            console.log('Audio zaustavljen.');
         }
 
         function playAudio(audioElement) {
@@ -67,12 +67,12 @@
                 console.warn('Audio element nije definiran ili nema izvor.');
                 return;
             }
-            console.log('Pokušaj reprodukcije audio fajla:', audioElement.src);
+            console.log('Pokušaj reprodukcije:', audioElement.src);
             stopAllAudio();
             audioElement.muted = false;
             audioElement.play().then(() => {
                 isAudioPlaying = true;
-                console.log('Audio uspješno pokrenut!');
+                console.log('Audio pokrenut!');
                 document.getElementById('play-audio-button').setAttribute('visible', 'false');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
@@ -84,30 +84,19 @@
             console.log('Zatražena dozvola za kameru.');
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
-                    console.log('Dozvola za kameru odobrena.');
+                    console.log('Kamera odobrena.');
                     stream.getTracks().forEach(track => track.stop());
                     playAudio(bosnianAudio);
                 })
                 .catch(error => {
-                    console.error('Dozvola za kameru odbijena ili greška:', error);
+                    console.error('Kamera odbijena ili greška:', error);
                     document.getElementById('play-audio-button').setAttribute('visible', 'true');
                 });
         }
 
-        bosnianAudio.addEventListener('canplaythrough', () => {
-            console.log('Audio fajl uspješno učitan i spreman za reprodukciju.');
-        });
         bosnianAudio.addEventListener('error', (e) => {
-            console.error('Greška pri učitavanju audio fajla:', e);
+            console.error('Greška pri učitavanju audija:', e);
             document.getElementById('play-audio-button').setAttribute('visible', 'true');
-        });
-        bosnianAudio.addEventListener('play', () => {
-            isAudioPlaying = true;
-            console.log('Audio se reprodukuje.');
-        });
-        bosnianAudio.addEventListener('ended', () => {
-            isAudioPlaying = false;
-            console.log('Audio završen.');
         });
 
         window.addEventListener('load', () => {
@@ -118,14 +107,14 @@
         ['click', 'touchstart'].forEach(event => {
             document.body.addEventListener(event, () => {
                 if (!isAudioPlaying) {
-                    console.log('Korisnička interakcija detektovana, pokušavam pokrenuti audio.');
+                    console.log('Korisnička interakcija, pokušaj reprodukcije.');
                     playAudio(bosnianAudio);
                 }
             }, { once: true });
         });
 
         document.getElementById('play-audio-button').addEventListener('click', () => {
-            console.log('Klik na gumb za reprodukciju.');
+            console.log('Klik na gumb.');
             playAudio(bosnianAudio);
         });
 
@@ -141,7 +130,7 @@
                         clip.play();
                         this.mixer = mixer;
                         this.clock = clock;
-                        console.log('Model i animacija uspješno učitani.');
+                        console.log('Model učitan.');
                     } else {
                         console.warn("No animations found in the model!");
                     }
