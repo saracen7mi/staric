@@ -208,6 +208,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -231,7 +232,7 @@
     <audio id="audio-bosnian" autoplay>
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
-    <!-- Commented out other language audio elements -->
+    <!-- Komentarisani ostali jezici -->
     <!--
     <audio id="audio-english">
         <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaengleski.mp3" type="audio/mpeg">
@@ -263,7 +264,7 @@
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas dočekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne škole, gdje dječji smijeh odjekuje pored sportskog igrališta i sale za kulturne događaje. Tu je i džamija, tiho svetište zajedništva. Drugi krak vodi do Tvornice masivnog namještaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeća i zanatske radnje bruje životom, dok vodosnabdijevanje povezuje razgranato naselje. Starić je više od sela – to je duša Kladnja, okružena zelenilom Konjuha i poviješću Stupara. Zaustavite se, upoznajte naše ljude, probajte domaću hranu i otkrijte čari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
 
-        <!-- Commented out language buttons -->
+        <!-- Komentarisana dugmad za jezike -->
         <!--
         <a-entity id="eng-button" geometry="primitive: plane; height: 0.5; width: 1.5"
                   material="color: red" position="-2.5 2 -4.9"
@@ -291,34 +292,26 @@
     </a-scene>
 
     <script>
-        // Audio elements
+        // Audio elementi
         let bosnianAudio = document.getElementById('audio-bosnian');
-        let isAudioPlaying = false;
 
-        // Audio control functions
-        function stopAllAudio() {
-            if (bosnianAudio) {
-                bosnianAudio.pause();
-                bosnianAudio.currentTime = 0;
-            }
-            isAudioPlaying = false;
-        }
-
+        // Funkcija za pokretanje audija
         function playAudio(audioElement) {
             if (!audioElement || !audioElement.src) {
                 console.warn('Audio element nije definiran ili nema izvor.');
                 return;
             }
-            stopAllAudio();
             audioElement.play().then(() => {
-                isAudioPlaying = true;
+                console.log('Bosanski audio pokrenut.');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
             });
         }
 
-        // Auto-play Bosnian audio on load
+        // Pokušaj automatskog pokretanja bosanskog audija
         window.addEventListener('load', () => {
+            playAudio(bosnianAudio);
+            // Fallback na prvi klik ako autoplay ne radi
             document.body.addEventListener('click', () => {
                 if (bosnianAudio.paused) {
                     playAudio(bosnianAudio);
@@ -326,45 +319,45 @@
             }, { once: true });
         });
 
-        // Animation component for the 3D model
+        // Komponenta za animaciju 3D modela
         AFRAME.registerComponent('custom-animation', {
-            init: function () {
+            init: function() {
                 let el = this.el;
                 let mixer, clock = new THREE.Clock();
                 el.addEventListener('model-loaded', (e) => {
                     let model = e.detail.model;
-                    if (model.animations.length > 0) {
+                    if (model.animations && model.animations.length > 0) {
                         mixer = new THREE.AnimationMixer(model);
-                        let clip = mixer.clipAction(model.animations[0]);
+                        let clip = mixer.clipAction(model.animations[0]));
                         clip.play();
                         this.mixer = mixer;
                         this.clock = clock;
                     } else {
-                        console.warn("No animations found in the model!");
+                        console.warn("Nema animacija u modelu!");
                     }
                 });
             },
-            tick: function () {
+            tick: function() {
                 if (this.mixer) {
                     this.mixer.update(this.clock.getDelta());
                 }
             }
         });
 
-        // Falling stars component
+        // Komponenta za padajuće zvijezde
         AFRAME.registerComponent('falling-stars', {
-            init: function () {
+            init: function() {
                 let scene = document.querySelector('#stars-container');
-                for (let i = 0; i < 15; i++) {
+                for (let i = 0; i < 20; i++) {
                     let star = document.createElement('a-sphere');
-                    star.setAttribute('radius', '0.05');
+                    star.setAttribute('radius', '0.1');
                     star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
                     star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 3 + 2} -4`);
                     scene.appendChild(star);
                     this.animateStar(star);
                 }
             },
-            animateStar: function (star) {
+            animateStar: function(star) {
                 function fall() {
                     let startY = Math.random() * 3 + 2;
                     let duration = Math.random() * 3000 + 2000;
@@ -389,7 +382,7 @@
             }
         });
 
-        // Flash light effect
+        // Efekt svjetlosnog bljeska
         function flashEffect() {
             let light = document.querySelector('#flash-light');
             let intensity = Math.random() * 1.5;
@@ -401,11 +394,9 @@
         }
         flashEffect();
 
-        // Initialize components
+        // Inicijalizacija komponenti
         document.querySelector('#stars-container').setAttribute('falling-stars', '');
     </script>
 </body>
 </html>
-
-
  
