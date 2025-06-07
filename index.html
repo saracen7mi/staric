@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dobro došli u Kladanj</title>
   <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -18,7 +18,7 @@
   </style>
 </head>
 <body>
-  <audio id="audio-bosnian">
+  <audio id="audio-bosnian" autoplay>
     <source src="https://raw.githubusercontent.com/saracen7mi/staric/main/staric.mp3" type="audio/mpeg">
   </audio>
 
@@ -28,27 +28,35 @@
       <a-asset-item id="font" src="https://cdn.aframe.io/fonts/mozillavr.fnt"></a-asset-item>
     </a-assets>
 
+    <a-sky color="#1A237E"></a-sky>
     <a-plane color="#008000" height="3.5" width="6.5" position="0 0.5 -5" opacity="0.9"></a-plane>
 
-    <a-entity id="animatedModel" gltf-model="#model" position="0 -0.1 -4" scale="1 1 1" rotation="0 0 0" custom-animation></a-entity>
+    <a-entity id="animatedModel" gltf-model="#model" position="0 -0.1 -4" scale="1 1 1" custom-animation></a-entity>
 
     <a-light id="flash-light" type="point" intensity="0" color="white" position="0 3 -3"></a-light>
     <a-light type="ambient" intensity="0.6" color="#FFF"></a-light>
 
     <a-text id="welcome-text"
-      value="DOBRODOŠLI U STARIĆ – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica..."
-      position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false"
-      animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
+            value="DOBRODOŠLI U STARIĆ – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starića..."
+            position="0.1 0.6 -5"
+            align="center"
+            color="white"
+            width="4"
+            font="mozillavr"
+            shader="msdf"
+            negate="false"
+            animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad">
+    </a-text>
 
     <a-entity id="play-audio-button"
-      geometry="primitive: plane; height: 0.3; width: 2"
-      material="shader: standard; color: #FFD700; metalness: 0.5; roughness: 0.2"
-      position="0 2 -4.9"
-      text="value: REPRODUCIRAJ ZVUK; color: black; align: center; width: 3;"
-      cursor="rayOrigin: mouse"
-      visible="false"
-      animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear"
-      animation__click="property: material.color; to: #FFFFE0; dur: 200; startEvents: click; dir: alternate; loop: 2">
+              geometry="primitive: plane; height: 0.3; width: 2"
+              material="shader: standard; color: #FFD700; metalness: 0.5; roughness: 0.2"
+              position="0 2 -4.9"
+              text="value: REPRODUCIRAJ ZVUK; color: black; align: center; width: 3;"
+              cursor="rayOrigin: mouse"
+              visible="false"
+              animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear"
+              animation__click="property: material.color; to: #FFFFE0; dur: 200; startEvents: click; dir: alternate; loop: 2">
       <a-entity id="click-particles" visible="false" click-particles></a-entity>
     </a-entity>
 
@@ -60,50 +68,58 @@
   </a-scene>
 
   <script>
-    // AUDIO
     const bosnianAudio = document.getElementById('audio-bosnian');
     const playButton = document.getElementById('play-audio-button');
+    let isAudioPlaying = false;
 
     function stopAllAudio() {
-      bosnianAudio.pause();
-      bosnianAudio.currentTime = 0;
+      if (bosnianAudio) {
+        bosnianAudio.pause();
+        bosnianAudio.currentTime = 0;
+      }
+      isAudioPlaying = false;
     }
 
     function playAudio(audioElement) {
-      if (!audioElement || !audioElement.src) return;
+      if (!audioElement || !audioElement.src) {
+        console.warn('Audio element nije definiran ili nema izvor.');
+        return;
+      }
       stopAllAudio();
       audioElement.play().then(() => {
+        isAudioPlaying = true;
         playButton.setAttribute('visible', 'false');
-      }).catch(() => {
+      }).catch(error => {
+        console.warn('Reprodukcija nije uspjela:', error);
         playButton.setAttribute('visible', 'true');
       });
     }
 
-    bosnianAudio.addEventListener('ended', () => {
-      playButton.setAttribute('visible', 'true');
-    });
+    bosnianAudio.addEventListener('play', () => { isAudioPlaying = true; });
+    bosnianAudio.addEventListener('ended', () => { isAudioPlaying = false; });
 
     window.addEventListener('load', () => {
-      document.body.addEventListener('click', () => {
-        playAudio(bosnianAudio);
-      }, { once: true }); // samo prvi klik
+      playAudio(bosnianAudio);
     });
 
     playButton.addEventListener('click', () => {
       playAudio(bosnianAudio);
     });
 
-    // MODEL ANIMACIJA
     AFRAME.registerComponent('custom-animation', {
       init: function () {
         let el = this.el;
+        let mixer, clock = new THREE.Clock();
         el.addEventListener('model-loaded', (e) => {
-          const model = e.detail.model;
+          let model = e.detail.model;
           if (model.animations.length > 0) {
-            const mixer = new THREE.AnimationMixer(model);
-            mixer.clipAction(model.animations[0]).play();
+            mixer = new THREE.AnimationMixer(model);
+            let clip = mixer.clipAction(model.animations[0]);
+            clip.play();
             this.mixer = mixer;
-            this.clock = new THREE.Clock();
+            this.clock = clock;
+          } else {
+            console.warn("No animations found in the model!");
           }
         });
       },
@@ -114,14 +130,14 @@
       }
     });
 
-    // ZVIJEZDE
     AFRAME.registerComponent('falling-stars', {
       init: function () {
-        let scene = this.el;
+        let scene = document.querySelector('#stars-container');
         for (let i = 0; i < 15; i++) {
           let star = document.createElement('a-sphere');
           star.setAttribute('radius', '0.05');
           star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
+          star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 3 + 2} -4`);
           scene.appendChild(star);
           this.animateStar(star);
         }
@@ -145,18 +161,17 @@
             easing: 'linear',
             loop: false
           });
-          setTimeout(fall, duration);
+          setTimeout(() => fall(), duration);
         };
         fall();
       }
     });
 
-    // ČESTICE NA KLIK
     AFRAME.registerComponent('click-particles', {
       init: function () {
         this.el.addEventListener('click', () => {
           this.el.setAttribute('visible', 'true');
-          let scene = this.el;
+          const scene = this.el;
           scene.innerHTML = '';
           for (let i = 0; i < 10; i++) {
             let particle = document.createElement('a-sphere');
@@ -188,18 +203,6 @@
         });
       }
     });
-
-    // BLJESAK
-    function flashEffect() {
-      let light = document.querySelector('#flash-light');
-      light.setAttribute('intensity', 2);
-      setTimeout(() => {
-        light.setAttribute('intensity', 0);
-      }, 300);
-    }
-
-    // Bljesak svakih 15 sekundi
-    setInterval(flashEffect, 15000);
   </script>
 </body>
 </html>
