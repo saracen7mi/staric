@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=0">
     <title>Dobro došli u Kladanj</title>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -18,8 +18,20 @@
     </style>
 </head>
 <body>
-    <audio id="audio-bosnian" preload="auto">
+    <audio id="audio-bosnian" autoplay>
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-english">
+        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaengleski.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-german">
+        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonanjemacki.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-italian">
+        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaitalijanski.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-turkish">
+        <source src="https://raw.githubusercontent.com/saracen7mi/privrednazona/main/privrednazonaturski.mp3" type="audio/mpeg">
     </audio>
 
     <a-scene embedded arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
@@ -38,6 +50,24 @@
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas dočekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne škole, gdje dječji smijeh odjekuje pored sportskog igrališta i sale za kulturne događaje. Tu je i džamija, tiho svetište zajedništva. Drugi krak vodi do Tvornice masivnog namještaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeća i zanatske radnje bruje životom, dok vodosnabdijevanje povezuje razgranato naselje. Starić je više od sela – to je duša Kladnja, okružena zelenilom Konjuha i poviješću Stupara. Zaustavite se, upoznajte naše ljude, probajte domaću hranu i otkrijte čari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
 
+        <!-- Language buttons from the first code -->
+<!--         <a-entity id="eng-button" geometry="primitive: plane; height: 0.5; width: 1.5"
+                  material="color: red" position="-2.5 2 -4.9"
+                  text="value: ENG; color: white; align: center; width: 3;">
+        </a-entity>
+        <a-entity id="deu-button" geometry="primitive: plane; height: 0.5; width: 1.5"
+                  material="color: yellow" position="-1 2 -4.9"
+                  text="value: DEU; color: black; align: center; width: 3;">
+        </a-entity>
+        <a-entity id="ita-button" geometry="primitive: plane; height: 0.5; width: 1.5"
+                  material="color: blue" position="0.5 2 -4.9"
+                  text="value: ITA; color: white; align: center; width: 3;">
+        </a-entity>
+        <a-entity id="tur-button" geometry="primitive: plane; height: 0.5; width: 1.5"
+                  material="color: brown" position="2 2 -4.9"
+                  text="value: TUR; color: white; align: center; width: 3;">
+        </a-entity> -->
+
         <a-entity id="stars-container" falling-stars></a-entity>
 
         <a-camera position="0 1.6 0">
@@ -46,57 +76,68 @@
     </a-scene>
 
     <script>
-        // Audio elementi
+        // Audio elements
         let bosnianAudio = document.getElementById('audio-bosnian');
+        let englishAudio = document.getElementById('audio-english');
+        let germanAudio = document.getElementById('audio-german');
+        let italianAudio = document.getElementById('audio-italian');
+        let turkishAudio = document.getElementById('audio-turkish');
+        let isAudioPlaying = false;
 
-        // Funkcija za pokretanje audija
+        // Audio control functions
+        function stopAllAudio() {
+            [bosnianAudio, englishAudio, germanAudio, italianAudio, turkishAudio].forEach(audio => {
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+            isAudioPlaying = false;
+        }
+
         function playAudio(audioElement) {
             if (!audioElement || !audioElement.src) {
                 console.warn('Audio element nije definiran ili nema izvor.');
                 return;
             }
+            stopAllAudio();
             audioElement.play().then(() => {
-                console.log('Bosanski audio pokrenut.');
+                isAudioPlaying = true;
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
-                // Prikaži poruku u konzoli ako autoplay ne radi
-                console.log('Autoplay blokiran. Kliknite na ekran za pokretanje audija.');
             });
         }
 
-        // Pokušaj automatskog pokretanja audija nakon učitavanja stranice
+        // Language button event listeners
+        document.getElementById('eng-button').addEventListener('mouseenter', () => playAudio(englishAudio));
+        document.getElementById('deu-button').addEventListener('mouseenter', () => playAudio(germanAudio));
+        document.getElementById('ita-button').addEventListener('mouseenter', () => playAudio(italianAudio));
+        document.getElementById('tur-button').addEventListener('mouseenter', () => playAudio(turkishAudio));
+
+        // Auto-play Bosnian audio on load
         window.addEventListener('load', () => {
-            playAudio(bosnianAudio);
-            // Fallback na prvi klik ili touch događaj
             document.body.addEventListener('click', () => {
-                if (bosnianAudio.paused) {
-                    playAudio(bosnianAudio);
-                }
-            }, { once: true });
-            // Dodatno osiguravanje za touch uređaje
-            document.body.addEventListener('touchstart', () => {
                 if (bosnianAudio.paused) {
                     playAudio(bosnianAudio);
                 }
             }, { once: true });
         });
 
-        // Komponenta za animaciju 3D modela
+        // Animation component for the 3D model
         AFRAME.registerComponent('custom-animation', {
             init: function () {
                 let el = this.el;
                 let mixer, clock = new THREE.Clock();
                 el.addEventListener('model-loaded', (e) => {
                     let model = e.detail.model;
-                    if (model.animations && model.animations.length > 0) {
+                    if (model.animations.length > 0) {
                         mixer = new THREE.AnimationMixer(model);
                         let clip = mixer.clipAction(model.animations[0]);
                         clip.play();
                         this.mixer = mixer;
                         this.clock = clock;
-                        console.log('Animacija pokrenuta:', model.animations);
                     } else {
-                        console.warn("Nema animacija u modelu!");
+                        console.warn("No animations found in the model!");
                     }
                 });
             },
@@ -107,22 +148,22 @@
             }
         });
 
-        // Komponenta za padajuće zvijezde
+        // Falling stars component
         AFRAME.registerComponent('falling-stars', {
             init: function () {
                 let scene = document.querySelector('#stars-container');
-                for (let i = 0; i < 20; i++) {
+                for (let i = 0; i < 15; i++) {
                     let star = document.createElement('a-sphere');
-                    star.setAttribute('radius', '0.1');
+                    star.setAttribute('radius', '0.05');
                     star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
-                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 4 + 3} -4`);
+                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 3 + 2} -4`);
                     scene.appendChild(star);
                     this.animateStar(star);
                 }
             },
             animateStar: function (star) {
                 function fall() {
-                    let startY = Math.random() * 4 + 3;
+                    let startY = Math.random() * 3 + 2;
                     let duration = Math.random() * 3000 + 2000;
                     star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${startY} -4`);
                     star.setAttribute('animation', {
@@ -145,7 +186,7 @@
             }
         });
 
-        // Efekt svjetlosnog bljeska
+        // Flash light effect
         function flashEffect() {
             let light = document.querySelector('#flash-light');
             let intensity = Math.random() * 1.5;
@@ -157,8 +198,9 @@
         }
         flashEffect();
 
-        // Inicijalizacija komponenti
+        // Initialize components
         document.querySelector('#stars-container').setAttribute('falling-stars', '');
     </script>
 </body>
 </html>
+ 
