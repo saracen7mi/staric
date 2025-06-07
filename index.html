@@ -26,21 +26,16 @@
             <a-asset-item id="model" src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/greeting_waving_.glb"></a-asset-item>
             <a-asset-item id="font" src="https://cdn.aframe.io/fonts/mozillavr.fnt"></a-asset-item>
         </a-assets>
-        <a-sky color="#1A237E" material="shader: gradient; topColor: 26 35 126; bottomColor: 100 181 246"></a-sky>
         <a-plane color="#008000" height="3.5" width="6.5" position="0 0.5 -5" opacity="0.9"></a-plane>
         <a-entity id="animatedModel" gltf-model="#model" position="0 -0.1 -4" scale="1 1 1" rotation="0 0 0" custom-animation></a-entity>
         <a-light id="flash-light" type="point" intensity="0" color="white" position="0 3 -3"></a-light>
-        <a-light type="ambient" intensity="0.6" color="#FFF"></a-light>
+        <a-light type="ambient" color="#666"></a-light>
         <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas docekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne skole, gdje djecji smijeh odzvanja pored sportskog igralista i sale za kulturne dogadjaje. Tu je i mesdzid, tiho svetiste zajednistva. Drugi krak vodi do Tvornice masivnog namjestaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeca i zanatske radnje bruje zivotom, dok vodosnabdijevanje povezuje razgranato naselje. Staric je više od sela – to je dusa Kladnja, okruzena zelenilom Konjuha i povijescu Stupara. Zaustavite se, upoznajte nase ljude, probajte domacu hranu i otkrijte cari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
-        <a-entity id="new-play-button"
-                  geometry="primitive: circle; radius: 0.3"
-                  material="shader: standard; color: #FFFFFF; opacity: 0.8; metalness: 0.2; roughness: 0.5"
-                  position="0 1.8 -1.5"
-                  text="value: 🕪; color: #333333; align: center; width: 1;"
-                  cursor="rayOrigin: mouse"
-                  visible="true"
-                  animation="property: position; by: 0 0.05 0; dur: 800; easing: easeInOutSine; loop: true; dir: alternate">
+        <a-entity id="play-button" geometry="primitive: plane; height: 0.5; width: 1.5"
+                  material="color: red" position="0 2 -4.9"
+                  text="value: ZVUK; color: white; align: center; width: 3;"
+                  cursor="rayOrigin: mouse">
         </a-entity>
         <a-entity id="stars-container" falling-stars></a-entity>
         <a-camera position="0 1.6 0">
@@ -70,7 +65,7 @@
             audioElement.play().then(() => {
                 isAudioPlaying = true;
                 console.log('Audio pokrenut.');
-                document.getElementById('new-play-button').setAttribute('visible', 'false');
+                document.getElementById('play-button').setAttribute('visible', 'false');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
             });
@@ -80,8 +75,8 @@
             console.error('Greška pri učitavanju audija:', e);
         });
 
-        document.getElementById('new-play-button').addEventListener('click', () => {
-            console.log('Klik na novi gumb za reprodukciju.');
+        document.getElementById('play-button').addEventListener('click', () => {
+            console.log('Klik na gumb za reprodukciju.');
             playAudio(bosnianAudio);
         });
 
@@ -119,7 +114,7 @@
                 for (let i = 0; i < 15; i++) {
                     let star = document.createElement('a-sphere');
                     star.setAttribute('radius', '0.05');
-                    star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
+                    star.setAttribute('material', 'color: #1E90FF; opacity: 0.8');
                     star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 3 + 2} -4`);
                     scene.appendChild(star);
                     this.animateStar(star);
@@ -152,11 +147,11 @@
 
         function flashEffect() {
             let light = document.querySelector('#flash-light');
-            let intensity = Math.random() * 1.5;
+            let intensity = Math.random() * 2;
             light.setAttribute('intensity', intensity);
             setTimeout(() => {
                 light.setAttribute('intensity', '0');
-                setTimeout(flashEffect, Math.random() * 600 + 300);
+                setTimeout(flashEffect, Math.random() * 500 + 200);
             }, 100);
         }
         flashEffect();
