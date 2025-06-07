@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dobro došli u Kladanj</title>
   <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -18,8 +18,8 @@
   </style>
 </head>
 <body>
-  <audio id="audio-bosnian" autoplay>
-    <source src=" https://raw.githubusercontent.com/saracen7mi/staric/main/staric.mp3" type="audio/mpeg">
+  <audio id="audio-bosnian">
+    <source src="https://raw.githubusercontent.com/saracen7mi/staric/main/staric.mp3" type="audio/mpeg">
   </audio>
 
   <a-scene embedded arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
@@ -28,7 +28,6 @@
       <a-asset-item id="font" src="https://cdn.aframe.io/fonts/mozillavr.fnt"></a-asset-item>
     </a-assets>
 
-    <a-sky color="#1A237E"></a-sky>
     <a-plane color="#008000" height="3.5" width="6.5" position="0 0.5 -5" opacity="0.9"></a-plane>
 
     <a-entity id="animatedModel" gltf-model="#model" position="0 -0.1 -4" scale="1 1 1" rotation="0 0 0" custom-animation></a-entity>
@@ -37,7 +36,7 @@
     <a-light type="ambient" intensity="0.6" color="#FFF"></a-light>
 
     <a-text id="welcome-text"
-      value="DOBRODOŠLI U STARIĆ – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas dočekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne škole, gdje dječji smijeh odzvanja pored sportskog igrališta i sale za kulturne događaje. Tu je i mesdžid, tiho svetište zajedništva. Drugi krak vodi do Tvornice masivnog namještaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeća i zanatske radnje bruje životom, dok vodosnabdijevanje povezuje razgranato naselje. Starić je više od sela – to je duša Kladnja, okružena zelenilom Konjuha i poviješću Stupara. Zaustavite se, upoznajte naše ljude, probajte domaću hranu i otkrijte čari Kladnja!"
+      value="DOBRODOŠLI U STARIĆ – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica..."
       position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false"
       animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
 
@@ -85,7 +84,9 @@
     });
 
     window.addEventListener('load', () => {
-      playAudio(bosnianAudio);
+      document.body.addEventListener('click', () => {
+        playAudio(bosnianAudio);
+      }, { once: true }); // samo prvi klik
     });
 
     playButton.addEventListener('click', () => {
