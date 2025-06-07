@@ -29,19 +29,19 @@
         <a-sky color="#1A237E" material="shader: gradient; topColor: 26 35 126; bottomColor: 100 181 246"></a-sky>
         <a-plane color="#008000" height="3.5" width="6.5" position="0 0.5 -5" opacity="0.9"></a-plane>
         <a-entity id="animatedModel" gltf-model="#model" position="0 -0.1 -4" scale="1 1 1" rotation="0 0 0" custom-animation></a-entity>
-        <a-light id="flash-light" type="point" intensity="0" color="white" position="0 3 -5"></a-light>
+        <a-light id="flash-light" type="point" intensity="0" color="white" position="0 3 -3"></a-light>
         <a-light type="ambient" intensity="0.6" color="#FFF"></a-light>
-        <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas docekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne skola, gdje djecji smijeh odzvanja pored sportskog igralista i sale za kulturne dogadjaje. Tu je i mesdzid, tiho svetiste zajednistva. Drugi krak vodi do Tvornice masivnog namjestaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeca i zanatske radnje bruje zivotom, dok vodosnabdijevanje povezuje razgranato naselje. Staric je više od sela – to je dusa Kladnja, okruzena zelenilom Konjuha i povijescu Stupara. Zaustavite se, upoznajte nase ljude, probajte domacu hranu i otkrijte cari Kladnja!"
+        <a-text id="welcome-text" value="DOBRODOSLI U STARIC – SRCE KLADNJA GOSTOLJUBIVOSTI! Zamislite mjesto gdje asfaltni put s magistralnog M-19 vodi ravno u toplu zajednicu Starica. Na ulazu vas docekuje poslovno-administrativni centar, dom Mjesne zajednice, simbol ponosa ovog naselja. Put se grana: jedan krak vodi do Osnovne skole, gdje djecji smijeh odzvanja pored sportskog igralista i sale za kulturne dogadjaje. Tu je i mesdzid, tiho svetiste zajednistva. Drugi krak vodi do Tvornice masivnog namjestaja, gdje se tradicija pretvara u umjetnost. U Lukama, poduzeca i zanatske radnje bruje zivotom, dok vodosnabdijevanje povezuje razgranato naselje. Staric je više od sela – to je dusa Kladnja, okruzena zelenilom Konjuha i povijescu Stupara. Zaustavite se, upoznajte nase ljude, probajte domacu hranu i otkrijte cari Kladnja!"
                 position="0.1 0.6 -5" align="center" color="white" width="4" font="mozillavr" shader="msdf" negate="false" animation="property: material.opacity; from: 0; to: 1; dur: 2000; easing: easeInOutQuad"></a-text>
         <a-entity id="play-audio-button"
-                  geometry="primitive: plane; height: 0.3; width=2"
-                  material="shader: standard; color: #FFD700; metalness: 0.5; roughness: 0.2"
-                  position="0 2 -2"
-                  text="value: REPRODUCIRAJ ZVUK; color: black; align: center; width: 3;"
+                  geometry="primitive: circle; radius: 0.3"
+                  material="shader: standard; color: #FFFFFF; opacity: 0.8; metalness: 0.2; roughness: 0.5"
+                  position="0 1.8 -1.5"
+                  text="value: 🕪; color: #333333; align: center; width: 1;"
                   cursor="rayOrigin: mouse"
-                  visible="false"
-                  animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear"
-                  animation__click="property: material.color; to: #FFFFE0; dur: 200; startEvents: click; dir: alternate; loop: 2">
+                  visible="true"
+                  animation="property: position; by: 0 0.05 0; dur: 800; easing: easeInOutSine; loop: true; dir: alternate"
+                  animation__click="property: material.color; to: #DDDDDD; dur: 200; startEvents: click; dir: alternate; loop: 2">
             <a-entity id="click-particles" visible="false" click-particles></a-entity>
         </a-entity>
         <a-entity id="stars-container" falling-stars></a-entity>
@@ -52,13 +52,16 @@
     <script>
         let bosnianAudio = document.getElementById('audio-bosnian');
         let isAudioPlaying = false;
+
         function stopAllAudio() {
             if (bosnianAudio) {
                 bosnianAudio.pause();
                 bosnianAudio.currentTime = 0;
             }
             isAudioPlaying = false;
+            console.log('Svi audio elementi zaustavljeni.');
         }
+
         function playAudio(audioElement) {
             if (!audioElement || !audioElement.src) {
                 console.warn('Audio element nije definiran ili nema izvor.');
@@ -76,11 +79,27 @@
                 document.getElementById('play-audio-button').setAttribute('visible', 'true');
             });
         }
+
+        function requestCameraPermission() {
+            console.log('Zatražena dozvola za kameru.');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    console.log('Dozvola za kameru odobrena.');
+                    stream.getTracks().forEach(track => track.stop());
+                    playAudio(bosnianAudio);
+                })
+                .catch(error => {
+                    console.error('Dozvola za kameru odbijena ili greška:', error);
+                    document.getElementById('play-audio-button').setAttribute('visible', 'true');
+                });
+        }
+
         bosnianAudio.addEventListener('canplaythrough', () => {
             console.log('Audio fajl uspješno učitan i spreman za reprodukciju.');
         });
         bosnianAudio.addEventListener('error', (e) => {
             console.error('Greška pri učitavanju audio fajla:', e);
+            document.getElementById('play-audio-button').setAttribute('visible', 'true');
         });
         bosnianAudio.addEventListener('play', () => {
             isAudioPlaying = true;
@@ -90,11 +109,12 @@
             isAudioPlaying = false;
             console.log('Audio završen.');
         });
+
         window.addEventListener('load', () => {
-            console.log('Stranica učitana, pokušavam pokrenuti audio.');
-            playAudio(bosnianAudio);
+            console.log('Stranica učitana.');
+            requestCameraPermission();
         });
-        // Dodaj listener za bilo koju korisničku interakciju
+
         ['click', 'touchstart'].forEach(event => {
             document.body.addEventListener(event, () => {
                 if (!isAudioPlaying) {
@@ -103,10 +123,12 @@
                 }
             }, { once: true });
         });
+
         document.getElementById('play-audio-button').addEventListener('click', () => {
             console.log('Klik na gumb za reprodukciju.');
             playAudio(bosnianAudio);
         });
+
         AFRAME.registerComponent('custom-animation', {
             init: function () {
                 let el = this.el;
@@ -134,6 +156,7 @@
                 }
             }
         });
+
         AFRAME.registerComponent('falling-stars', {
             init: function () {
                 let scene = document.querySelector('#stars-container');
@@ -170,6 +193,7 @@
                 fall();
             }
         });
+
         AFRAME.registerComponent('click-particles', {
             init: function () {
                 this.el.addEventListener('click', () => {
@@ -206,6 +230,7 @@
                 });
             }
         });
+
         function flashEffect() {
             let light = document.querySelector('#flash-light');
             let intensity = Math.random() * 1.5;
@@ -216,7 +241,9 @@
             }, 100);
         }
         flashEffect();
+
         document.querySelector('#stars-container').setAttribute('falling-stars', '');
+        document.querySelector('#play-audio-button').querySelector('#click-particles').setAttribute('click-particles', '');
     </script>
 </body>
 </html>
