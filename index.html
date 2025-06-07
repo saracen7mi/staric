@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dobro došli u Kladanj</title>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -19,7 +18,7 @@
     </style>
 </head>
 <body>
-    <audio id="audio-bosnian" autoplay>
+    <audio id="audio-bosnian" preload="auto">
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
 
@@ -60,14 +59,22 @@
                 console.log('Bosanski audio pokrenut.');
             }).catch(error => {
                 console.warn('Reprodukcija nije uspjela:', error);
+                // Prikaži poruku u konzoli ako autoplay ne radi
+                console.log('Autoplay blokiran. Kliknite na ekran za pokretanje audija.');
             });
         }
 
-        // Pokušaj automatskog pokretanja bosanskog audija
+        // Pokušaj automatskog pokretanja audija nakon učitavanja stranice
         window.addEventListener('load', () => {
             playAudio(bosnianAudio);
-            // Fallback na prvi klik ako autoplay ne radi
+            // Fallback na prvi klik ili touch događaj
             document.body.addEventListener('click', () => {
+                if (bosnianAudio.paused) {
+                    playAudio(bosnianAudio);
+                }
+            }, { once: true });
+            // Dodatno osiguravanje za touch uređaje
+            document.body.addEventListener('touchstart', () => {
                 if (bosnianAudio.paused) {
                     playAudio(bosnianAudio);
                 }
@@ -104,19 +111,19 @@
         AFRAME.registerComponent('falling-stars', {
             init: function () {
                 let scene = document.querySelector('#stars-container');
-                for (let i = 0; i < 20; i++) { // Povećan broj zvijezda
+                for (let i = 0; i < 20; i++) {
                     let star = document.createElement('a-sphere');
-                    star.setAttribute('radius', '0.1'); // Povećana veličina zvijezda
+                    star.setAttribute('radius', '0.1');
                     star.setAttribute('material', 'color: #FFD700; opacity: 0.8');
-                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 4 + 3} -4`); // Viša početna pozicija
+                    star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${Math.random() * 4 + 3} -4`);
                     scene.appendChild(star);
                     this.animateStar(star);
                 }
             },
             animateStar: function (star) {
                 function fall() {
-                    let startY = Math.random() * 4 + 3; // Početna visina između 3 i 7
-                    let duration = Math.random() * 3000 + 2000; // Trajanje pada
+                    let startY = Math.random() * 4 + 3;
+                    let duration = Math.random() * 3000 + 2000;
                     star.setAttribute('position', `${(Math.random() - 0.5) * 8} ${startY} -4`);
                     star.setAttribute('animation', {
                         property: 'position',
@@ -155,7 +162,3 @@
     </script>
 </body>
 </html>
-
-
-
- 
