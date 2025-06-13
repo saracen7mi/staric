@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <audio id="audio-bosnian" autoplay>
+    <audio id="audio-bosnian" playsinline>
         <source src="https://cdn.jsdelivr.net/gh/saracen7mi/staric@main/staric.mp3" type="audio/mpeg">
     </audio>
 
@@ -83,14 +83,32 @@
         }
 
         // Auto-play Bosnian audio on load
-        window.addEventListener('load', () => {
-            document.body.addEventListener('click', () => {
-                if (bosnianAudio.paused) {
-                    playAudio(bosnianAudio);
-                }
-            }, { once: true });
-        });
+        // window.addEventListener('load', () => {
+        //     document.body.addEventListener('click', () => {
+        //         if (bosnianAudio.paused) {
+        //             playAudio(bosnianAudio);
+        //         }
+        //     }, { once: true });
+        // });
 
+
+
+window.addEventListener('load', () => {
+    const audio = document.getElementById('audio-bosnian');
+    document.body.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.play().catch(error => {
+                console.warn('Audio playback blocked:', error);
+            });
+        }
+    }, { once: true });
+});
+
+
+
+
+
+        
         // Komponenta za animaciju 3D modela
         AFRAME.registerComponent('custom-animation', {
             init: function () {
